@@ -25,7 +25,7 @@ const socketManager = new SocketManager(io);
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ["https://your-app-name.vercel.app"] 
+    ? ["https://khel-ai-tau.vercel.app/"] 
     : ["http://localhost:3000"],
   credentials: true
 }));
