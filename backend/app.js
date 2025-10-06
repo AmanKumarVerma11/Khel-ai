@@ -11,8 +11,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
+    origin: process.env.NODE_ENV === 'production' 
+      ? ["https://your-app-name.vercel.app"] 
+      : ["http://localhost:3000"],
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
@@ -20,7 +23,12 @@ const io = socketIo(server, {
 const socketManager = new SocketManager(io);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ["https://your-app-name.vercel.app"] 
+    : ["http://localhost:3000"],
+  credentials: true
+}));
 app.use(express.json());
 
 // Make io instance and socketManager available to routes
