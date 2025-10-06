@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpdateLog Component Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Mock UpdateLog component for testing
+        const UpdateLog = ({ updateLog }) => {
+            const formatTimestamp = (timestamp) => {
+                try {
+                    const date = new Date(timestamp)
+                    return date.toLocaleTimeString('en-US', {
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })
+                } catch (error) {
+                    return 'Invalid time'
+                }
+            }
+
+            const formatEventDescription = (update) => {
+                const { over, ball, runs, wicket, isCorrection, previousData } = update
+                let description = `${over}.${ball}: ${runs} run${runs !== 1 ? 's' : ''}`
+
+                if (wicket) {
+                    description += ' + Wicket'
+                }
+
+                // For corrections, show the change from previous to new values
+                if (isCorrection && previousData) {
+                    const prevRuns = previousData.runs || 0
+                    const prevWicket = previousData.wicket || false
+
+                    description = `${over}.${ball}: ${prevRuns} → ${runs} run${runs !== 1 ? 's' : ''}`
+
+                    if (prevWicket !== wicket) {
+                        if (wicket && !prevWicket) {
+                            description += ' + Wicket added'
+                        } else if (!wicket && prevWicket) {
+                            description += ' - Wicket removed'
+                        }
+                    } else if (wicket) {
+                        description += ' + Wicket'
+                    }
+                }
+
+                return description
+            }
+
+            const displayLog = React.useMemo(() => {
+                if (!updateLog || !Array.isArray(updateLog)) {
+                    return []
+                }
+                return updateLog.slice(0, 20)
+            }, [updateLog])
+
+            return (
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto mt-8">
+                    <h2 className="text-2xl font-semibold mb-4 text-gray-800">Recent Updates</h2>
+
+                    {displayLog.length === 0 ? (
+                        <div className="text-center text-gray-500 py-8">
+                            <p>No updates yet.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {displayLog.map((update, index) => (
+                                <div
+                                    key={`${update.timestamp}-${index}`}
+                                    className={`p-3 rounded-md border-l-4 transition-all duration-200 ${update.isCorrection
+                                        ? 'bg-yellow-50 border-yellow-400 shadow-sm'
+                                        : 'bg-green-50 border-green-400'
+                                        }`}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex-1">
+                                            <div className="font-medium text-gray-900">
+                                                {formatEventDescription(update)}
+                                            </div>
+
+                                            {update.isCorrection && (
+                                                <div className="mt-1">
+                                                    <span className="inline-flex items-center text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full font-medium">
+                                                        ⚠️ CORRECTION
+                                                    </span>
+                                                    {update.previousData && (
+                                                        <div className="mt-1 text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                                                            Previous: {update.previousData.runs || 0} run{(update.previousData.runs || 0) !== 1 ? 's' : ''}
+                                                            {update.previousData.wicket && ' + Wicket'}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className="mt-1 text-xs text-gray-600">
+                                                Over {update.over}, Ball {update.ball}
+                                                {update.wicket && (
+                                                    <span className="ml-2 inline-flex items-center text-red-600">
+                                                        🏏 Wicket
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="text-xs text-gray-500 ml-4 flex-shrink-0">
+                                            <div className="text-right">
+                                                {formatTimestamp(update.timestamp)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        // Test data
+        const testUpdateLog = [
+            {
+                over: 4,
+                ball: 5,
+                runs: 0,
+                wicket: false,
+                isCorrection: true,
+                previousData: {
+                    runs: 6,
+                    wicket: false
+                },
+                timestamp: new Date().toISOString()
+            },
+            {
+                over: 4,
+                ball: 4,
+                runs: 1,
+                wicket: false,
+                isCorrection: false,
+                timestamp: new Date(Date.now() - 10000).toISOString()
+            },
+            {
+                over: 4,
+                ball: 3,
+                runs: 4,
+                wicket: false,
+                isCorrection: false,
+                timestamp: new Date(Date.now() - 20000).toISOString()
+            },
+            {
+                over: 4,
+                ball: 2,
+                runs: 6,
+                wicket: false,
+                isCorrection: false,
+                timestamp: new Date(Date.now() - 30000).toISOString()
+            }
+        ]
+
+        const App = () => {
+            return (
+                <div className="min-h-screen bg-gray-100 py-8">
+                    <div className="max-w-4xl mx-auto">
+                        <h1 className="text-3xl font-bold text-center mb-8">UpdateLog Component Test</h1>
+                        <UpdateLog updateLog={testUpdateLog} />
+
+                        <div className="mt-8 p-4 bg-white rounded-lg shadow">
+                            <h3 className="text-lg font-semibold mb-2">Test Data:</h3>
+                            <pre className="text-sm bg-gray-100 p-2 rounded overflow-x-auto">
+                                {JSON.stringify(testUpdateLog, null, 2)}
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'))
+    </script>
+</body>
+
+</html>""
