@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? ["https://your-app-name.vercel.app"] 
+      ? ["https://khel-ai-tau.vercel.app"] 
       : ["http://localhost:3000"],
     methods: ["GET", "POST"],
     credentials: true
@@ -25,7 +25,7 @@ const socketManager = new SocketManager(io);
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ["https://khel-ai-tau.vercel.app/"] 
+    ? ["https://khel-ai-tau.vercel.app"] 
     : ["http://localhost:3000"],
   credentials: true
 }));
