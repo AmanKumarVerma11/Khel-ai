@@ -45,7 +45,7 @@ export default function ScoreDisplay({ currentScore, connectionStatus }) {
           {isLoading && (
             <div className="flex items-center justify-center space-x-2">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cricket-green"></div>
-              <span>Loading score data...</span>
+              <span>Loading score data....</span>
             </div>
           )}
           
