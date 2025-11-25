@@ -44,7 +44,6 @@ app.get('/', (req, res) => {
   res.json({ message: 'Cricket Score Tracker API' });
 });
 
-// Socket.io connection handling is now managed by SocketManager
 
 const PORT = process.env.PORT || 5000;
 

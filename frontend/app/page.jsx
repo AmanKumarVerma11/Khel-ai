@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { io } from 'socket.io-client'
 import ScoreDisplay from '../components/ScoreDisplay'
 import UpdateLog from '../components/UpdateLog'
+import UndoRedoPanel from '../components/UndoRedoPanel'
 
 export default function Home() {
   // State for current score display
@@ -44,6 +45,32 @@ export default function Home() {
   // Socket.io client reference
   const socketRef = useRef(null)
   const reconnectTimeoutRef = useRef(null)
+
+  // Function to refresh score (used by UndoRedoPanel)
+  const refreshScore = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/score?matchId=${formData.matchId}`)
+      const data = await response.json()
+      
+      if (data.success) {
+        setCurrentScore({
+          runs: data.data.runs || 0,
+          wickets: data.data.wickets || 0,
+          overs: data.data.overs || '0.0'
+        })
+      }
+    } catch (error) {
+      console.error('Error refreshing score:', error)
+    }
+  }
+
+  // Make refreshScore available globally for UndoRedoPanel
+  useEffect(() => {
+    window.refreshScore = refreshScore
+    return () => {
+      delete window.refreshScore
+    }
+  }, [formData.matchId])
 
   // Socket.io connection setup
   useEffect(() => {
@@ -522,6 +549,11 @@ export default function Home() {
               </button>
             </form>
           </div>
+        </div>
+
+        {/* Undo/Redo Panel */}
+        <div className="mt-8">
+          <UndoRedoPanel matchId={formData.matchId} />
         </div>
 
         {/* Update Log Section */}

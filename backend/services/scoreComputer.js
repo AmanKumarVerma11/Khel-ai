@@ -52,13 +52,15 @@ class ScoreComputer {
   /**
    * Fetch and sort events by matchId
    * Returns the latest version of each event, sorted chronologically
+   * Excludes undone events from score calculation
    * @param {string} matchId - Match identifier
-   * @returns {Promise<Array>} Sorted array of events
+   * @returns {Promise<Array>} Sorted array of active events
    */
   static async getEventsByMatch(matchId = 'default') {
     try {
-      // Use the Event model's method to get latest version of each event
-      const events = await Event.findByMatchId(matchId);
+      // Get active events (excluding undone events) using UndoRedoManager
+      const UndoRedoManager = require('./undoRedoManager');
+      const events = await UndoRedoManager.getActiveEvents(matchId);
       
       // Sort by over and ball to ensure chronological order
       events.sort((a, b) => {

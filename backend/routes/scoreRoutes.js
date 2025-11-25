@@ -1,6 +1,7 @@
 const express = require('express');
 const ScoreController = require('../controllers/scoreController');
 const SimulationController = require('../controllers/simulationController');
+const UndoRedoController = require('../controllers/undoRedoController');
 
 const router = express.Router();
 
@@ -19,6 +20,25 @@ router.get('/events', ScoreController.getRecentEvents);
 
 // POST /correct - Explicit score correction
 router.post('/correct', ScoreController.correctScore);
+
+/**
+ * Undo/Redo Routes
+ */
+
+// POST /undo-range - Undo events in a specific range
+router.post('/undo-range', UndoRedoController.undoRange);
+
+// POST /redo - Redo a previously undone operation
+router.post('/redo', UndoRedoController.redoOperation);
+
+// GET /undo-history - Get undo/redo history for a match
+router.get('/undo-history', UndoRedoController.getUndoHistory);
+
+// GET /active-events - Get currently active events (excluding undone)
+router.get('/active-events', UndoRedoController.getActiveEvents);
+
+// GET /range-preview - Preview events in a range before undo
+router.get('/range-preview', UndoRedoController.getRangePreview);
 
 /**
  * Simulation Routes

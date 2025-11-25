@@ -48,8 +48,8 @@ class Event {
       errors.push('MatchId must be a string');
     }
 
-    if (data.eventType && !['new', 'correction'].includes(data.eventType)) {
-      errors.push('EventType must be either "new" or "correction"');
+    if (data.eventType && !['new', 'correction', 'undone', 'restored'].includes(data.eventType)) {
+      errors.push('EventType must be one of: "new", "correction", "undone", "restored"');
     }
 
     if (data.version && (typeof data.version !== 'number' || data.version < 1)) {

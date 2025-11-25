@@ -6,7 +6,7 @@ const Event = require('../models/Event');
  * including validation, upsert logic, and correction handling
  */
 class EventProcessor {
-  
+
   /**
    * Process a score event (new submission or correction)
    * @param {Object} eventData - The event data to process
@@ -150,7 +150,7 @@ class EventProcessor {
       // Check if original event exists
       const matchId = correctionData.matchId || 'default';
       const key = `${correctionData.over}.${correctionData.ball}`;
-      
+
       // Get existing events to understand what we're correcting
       const existingEvents = await Event.findByMatchId(matchId);
       const existingEvent = existingEvents.find(event => event.key === key);
@@ -198,11 +198,11 @@ class EventProcessor {
     try {
       const allVersions = await Event.findAllVersionsByMatchId(matchId);
       const latestEvents = await Event.findByMatchId(matchId);
-      
+
       // Count corrections
       const corrections = allVersions.filter(event => event.eventType === 'correction');
       const correctionsByKey = {};
-      
+
       corrections.forEach(correction => {
         if (!correctionsByKey[correction.key]) {
           correctionsByKey[correction.key] = 0;
@@ -217,7 +217,7 @@ class EventProcessor {
         totalCorrections: corrections.length,
         eventsWithCorrections: Object.keys(correctionsByKey).length,
         correctionsByKey,
-        lastProcessed: allVersions.length > 0 ? 
+        lastProcessed: allVersions.length > 0 ?
           Math.max(...allVersions.map(e => e.timestamp.getTime())) : null
       };
 
@@ -249,11 +249,11 @@ class EventProcessor {
       // Check for sequence issues
       for (let i = 0; i < events.length; i++) {
         const event = events[i];
-        
+
         // Check ball sequence within over
         if (i > 0) {
           const prevEvent = events[i - 1];
-          
+
           // If same over, ball should increment by 1 (or reset to 1 for new over)
           if (event.over === prevEvent.over) {
             if (event.ball !== prevEvent.ball + 1) {
